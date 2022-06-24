@@ -1,0 +1,73 @@
+{
+  "private": true,
+  "version": "0.1.0",
+  "author": "SSen <ian@ssen.name>",
+  "license": "Apache-2.0",
+  "repository": "github:Anchor-Protocol/anchor",
+  "workspaces": [
+    "app",
+    "landing"
+  ],
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "app:start": "yarn workspace @anchor-web-app/app run start",
+    "app:build": "yarn workspace @anchor-web-app/app run build",
+    "app:test": "yarn workspace @anchor-web-app/app run test",
+    "app:coverage": "yarn workspace @anchor-web-app/app run coverage",
+    "app:pack": "yarn workspace @anchor-web-app/app run pack",
+    "app:publish": "yarn workspace @anchor-web-app/app run publish",
+    "app:storybook": "yarn workspace @anchor-web-app/app run storybook",
+    "app:build-storybook": "yarn workspace @anchor-web-app/app run build-storybook",
+    "landing:start": "yarn workspace @anchor-web-app/landing run start",
+    "landing:build": "yarn workspace @anchor-web-app/landing run build",
+    "landing:test": "yarn workspace @anchor-web-app/landing run test",
+    "landing:coverage": "yarn workspace @anchor-web-app/landing run coverage",
+    "graphql:download-schema": "apollo client:download-schema --endpoint \"https://bombay-mantle.terra.dev\" \"schema.graphql\"",
+    "markdown:build": "markdown-source-import **/src/**/*.md",
+    "postinstall": "husky install"
+  },
+  "lint-staged": {
+    "**/src/{**/*,*}.{ts,tsx}": [
+      "prettier --write",
+      "eslint --max-warnings 0"
+    ]
+  },
+  "devDependencies": {
+    "@handbook/markdown-source-import": "^1.1.0",
+    "@ssen/prettier-config": "^2.0.1",
+    "@types/eslint": "^7.2.14",
+    "@types/prettier": "^2.3.2",
+    "apollo": "^2.33.9",
+    "eslint": "^7.30.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-react-app": "^6.0.0",
+    "husky": "^7.0.1",
+    "jest-bin": "^0.3.0",
+    "lint-staged": "^11.0.0",
+    "prettier": "^2.3.2"
+  },
+  "peerDependencies": {
+    "eslint-config-react-app": "6.0.0"
+  },
+  "resolutions": {
+    "@material-ui/core": "4.11.3",
+    "babel-loader": "8.1.0",
+    "webpack": "4.44.2",
+    "@terra-money/terra.js": "3.0.2"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^1.8.8",
+    "@reduxjs/toolkit": "^1.8.1",
+    "axios": "^0.26.1",
+    "chartjs-adapter-date-fns": "^2.0.0",
+    "date-fns": "^2.28.0",
+    "framer-motion": "^6.3.3",
+    "react-chartjs-2": "^4.0.1",
+    "react-icons": "^4.3.1",
+    "react-redux": "^8.0.1",
+    "react-toastify": "^8.2.0",
+    "sf-font": "^1.0.0",
+    "url-loader": "^4.1.1"
+  }
+}

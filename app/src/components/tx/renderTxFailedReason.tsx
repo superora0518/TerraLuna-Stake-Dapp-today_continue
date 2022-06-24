@@ -1,0 +1,192 @@
+import { PollingTimeout, TxErrorRendering } from '@libs/app-fns';
+import {
+  CreateTxFailed,
+  Timeout,
+  TxFailed,
+  TxUnspecifiedError,
+  UserDenied,
+} from '@terra-money/wallet-provider';
+import React, { ReactNode } from 'react';
+
+// ----------------------------------------------------------------
+// parse error
+// ----------------------------------------------------------------
+const channels = (
+  <ul>
+    <li>
+      Telegram :{' '}
+      <a href="https://t.me/terra_treasury" target="_blank" rel="noreferrer">
+         https://t.me/terra_treasury
+      </a>
+    </li>
+  </ul>
+);
+
+const createTxFailedMessage = (message: string) => (
+  <div style={{ lineHeight: '1.8em' }}>
+    <p>{message}</p>
+    {channels}
+  </div>
+);
+
+const txUnspecifiedErrorMessage = (message: string | undefined | null) => (
+  <div style={{ lineHeight: '1.8em' }}>
+    {typeof message === 'string' && <p>{message}</p>}
+
+    {channels}
+  </div>
+);
+
+const uncaughtErrorMessage = (message: string | null | undefined) => (
+  <div style={{ lineHeight: '1.8em' }}>
+    {typeof message === 'string' && <p>{message}</p>}
+    <p style={{ opacity: typeof message === 'string' ? 0.7 : undefined }}>
+      If the problem still persists, please report the issue to admin through
+      any one of the following channels.
+    </p>
+
+    {channels}
+  </div>
+);
+
+function instanceofWithName<E>(error: unknown, name: string): error is E {
+  return error instanceof Error && error.name === name;
+}
+
+export function renderTxFailedReason({
+  error,
+  errorId,
+}: TxErrorRendering): ReactNode {
+  // @terra-money/wallet-provider
+  if (
+    error instanceof UserDenied ||
+    instanceofWithName<UserDenied>(error, 'UserDenied')
+  ) {
+    return <h2>User Denied</h2>;
+  } else if (
+    error instanceof CreateTxFailed ||
+    instanceofWithName<CreateTxFailed>(error, 'CreateTxFailed')
+  ) {
+    return (
+      <>
+        <h2>Failed to broadcast transaction</h2>
+        <ErrorMessageView error={error} errorId={errorId}>
+          {createTxFailedMessage(error.message)}
+        </ErrorMessageView>
+      </>
+    );
+  } else if (
+    error instanceof TxFailed ||
+    instanceofWithName<TxFailed>(error, 'TxFailed')
+  ) {
+    return (
+      <>
+        <h2 style={{fontWeight:'860'}}>TRANSACTION FAILED</h2>
+        <ErrorMessageView error={null}>
+          <div style={{ lineHeight: '1.8em' }}>
+            <p style={{ opacity: 0.7 }}>
+              The transaction requested has failed due to the following reason:
+            </p>
+            <p>
+              {error.message
+                .replace('execute wasm contract failed:', '')
+                .replace('failed to execute message; message index: 0', '')
+                .replace(': failed to execute message; message index: 0', '')
+                .trim()}
+            </p>
+            <p style={{ opacity: 0.7, marginTop: '1em' }}>
+            For assistance, please report your Tx hash to the official Terra Treasury Telegram Support Channel.
+            </p>
+            <p>
+              Telegram Channel:{' '}
+              <a
+                href="https://t.me/terra_treasury"
+                target="_blank"
+                rel="noreferrer"
+                style={{color:'#F9D85E'}}
+              >
+              https://t.me/terra_treasury
+              </a>
+            </p>
+          </div>
+        </ErrorMessageView>
+      </>
+    );
+  } else if (
+    error instanceof Timeout ||
+    instanceofWithName<Timeout>(error, 'Timeout')
+  ) {
+    return (
+      <>
+        <h2>Timeout</h2>
+        <div style={{ marginBottom: '1em' }}>{error.message}</div>
+      </>
+    );
+  } else if (
+    error instanceof PollingTimeout ||
+    instanceofWithName<PollingTimeout>(error, 'PollingTimeout')
+  ) {
+    return (
+      <>
+        <h2>Transaction Queued</h2>
+        <div style={{ marginBottom: '1em' }}>{error.message}</div>
+      </>
+    );
+  } else if (
+    error instanceof TxUnspecifiedError ||
+    instanceofWithName<TxUnspecifiedError>(error, 'TxUnspecifiedError')
+  ) {
+    return (
+      <>
+        <h2>Transaction failed (unspecified)</h2>
+        <ErrorMessageView error={error} errorId={errorId}>
+          {txUnspecifiedErrorMessage(error.message)}
+        </ErrorMessageView>
+      </>
+    );
+  } else {
+    return (
+      <>
+        <h2>Oops, something went wrong!</h2>
+        <ErrorMessageView error={error} errorId={errorId}>
+          {uncaughtErrorMessage(
+            error instanceof Error ? error.message : String(error),
+          )}
+        </ErrorMessageView>
+      </>
+    );
+  }
+}
+
+function ErrorMessageView({
+  children,
+  error,
+  errorId,
+}: {
+  children: ReactNode;
+  error: unknown;
+  errorId?: string | null;
+}) {
+  return (
+    <div>
+      {error instanceof Error && error.message.length > 0 ? (
+        <div style={{ lineHeight: '1.8em' }}>
+          <details>
+            <summary>{error.message}</summary>
+            <ul style={{ fontSize: '0.8em' }}>
+              <li>Error type: {error.name}</li>
+              <li>Error stack: {error.stack}</li>
+            </ul>
+          </details>
+        </div>
+      ) : (
+        children
+      )}
+      {/*{!(error instanceof Error && error.message.length > 0) && errorId && (*/}
+      {/*  <p>*/}
+      {/*    <b>Error ID</b>: {errorId}*/}
+      {/*  </p>*/}
+      {/*)}*/}
+    </div>
+  );
+}
